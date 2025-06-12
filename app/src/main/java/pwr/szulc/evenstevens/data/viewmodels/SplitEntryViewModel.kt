@@ -30,4 +30,8 @@ class SplitEntryViewModel(private val repository: SplitEntryRepository) : ViewMo
         }
     }
 
+    fun getSplitEntriesByGroup(groupId: Int): Flow<List<SplitEntryEntity>> {
+        return repository.getSplitEntriesByGroup(groupId)
+    }
+
 }

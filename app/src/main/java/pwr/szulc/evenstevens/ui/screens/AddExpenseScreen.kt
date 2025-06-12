@@ -18,6 +18,7 @@ import pwr.szulc.evenstevens.ui.common.AppTopBar
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import pwr.szulc.evenstevens.data.entities.SplitEntryEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,11 +40,7 @@ fun AddExpenseScreen(
     val usersInGroup by groupUserCrossRefViewModel.getUsersForGroup(groupId).collectAsState(initial = emptyList())
     val allUsers by userViewModel.users.collectAsState(initial = emptyList())
 
-    val availableUsers = remember(usersInGroup, allUsers) {
-        usersInGroup.mapNotNull { crossRef ->
-            allUsers.find { it.id == crossRef.userId }
-        }
-    }
+    val availableUsers = usersInGroup
 
     var expanded by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<String?>(null) }
@@ -234,7 +231,12 @@ fun AddExpenseScreen(
                         amount != null && amount > 0 &&
                         paidByUserId != null &&
                         includedUserIds.isNotEmpty()
-                    ) {
+                    )  {
+                        if (!(splitEqually || customSplit)) {
+                            Toast.makeText(context, "Wybierz sposób podziału kosztów", Toast.LENGTH_LONG).show()
+                            return@Button
+                        }
+
                         if (customSplit) {
                             val sum = includedUserIds.sumOf {
                                 customAmounts[it]?.toDoubleOrNull() ?: 0.0
@@ -253,8 +255,30 @@ fun AddExpenseScreen(
                             paidByUserId = paidByUserId
                         )
 
-                        // tutaj dodac zapisywanie do split entry
-                        expenseViewModel.addExpense(expense)
+                        val splits = if (splitEqually) {
+                            val share = amount / includedUserIds.size
+                            includedUserIds.map { userId ->
+                                SplitEntryEntity(
+                                    expenseId = 0,
+                                    userId = userId,
+                                    amount = share
+                                )
+                            }
+                        } else {
+                            includedUserIds.mapNotNull { userId ->
+                                val customAmount = customAmounts[userId]?.toDoubleOrNull()
+                                if (customAmount != null) {
+                                    SplitEntryEntity(
+                                        expenseId = 0,
+                                        userId = userId,
+                                        amount = customAmount
+                                    )
+                                } else null
+                            }
+                        }
+
+                        expenseViewModel.addExpenseWithSplits(expense, splits)
+
                         Toast.makeText(context, "Dodano wydatek", Toast.LENGTH_SHORT).show()
                         navController.popBackStack()
                     } else {

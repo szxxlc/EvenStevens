@@ -24,4 +24,13 @@ interface SplitEntryDao {
 
     @Query("SELECT * FROM split_entries")
     fun getAllSplitEntries(): Flow<List<SplitEntryEntity>>
+
+    @Query("""
+    SELECT se.* FROM split_entries AS se
+    INNER JOIN expenses AS e ON se.expenseId = e.id
+    WHERE e.groupId = :groupId
+    """)
+    fun getSplitEntriesByGroup(groupId: Int): Flow<List<SplitEntryEntity>>
+
+
 }

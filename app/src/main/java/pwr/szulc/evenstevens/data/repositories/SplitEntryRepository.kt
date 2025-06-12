@@ -20,4 +20,8 @@ class SplitEntryRepository(private val splitEntryDao: SplitEntryDao) {
 
     fun getAllSplitEntries(): Flow<List<SplitEntryEntity>> = splitEntryDao.getAllSplitEntries()
 
+    fun getSplitEntriesByGroup(groupId: Int): Flow<List<SplitEntryEntity>> {
+        return splitEntryDao.getSplitEntriesByGroup(groupId)
+    }
+
 }

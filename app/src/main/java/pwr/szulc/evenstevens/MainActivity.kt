@@ -3,7 +3,6 @@ package pwr.szulc.evenstevens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,7 +23,7 @@ class MainActivity : ComponentActivity() {
         val userRepository = UserRepository(db.userDao())
         val expenseRepository = ExpenseRepository(db.expenseDao(), db.splitEntryDao())
         val splitEntryRepository = SplitEntryRepository(db.splitEntryDao())
-        val groupUserCrossRefRepository = GroupUserCrossRefRepository(db.groupUserCrossRefDao())
+        val groupUserCrossRefRepository = GroupUserCrossRefRepository(db.groupUserCrossRefDao(), db.userDao())
 
         val groupViewModel = GroupViewModel(groupRepository)
         val userViewModel = UserViewModel(userRepository)
@@ -67,7 +66,6 @@ fun AppNavHost(
             GroupListScreen(
                 navController = navController,
                 viewModel = groupViewModel,
-                userViewModel = userViewModel,
                 groupUserCrossRefViewModel = groupUserCrossRefViewModel,
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme
@@ -96,8 +94,11 @@ fun AppNavHost(
             GroupScreen(
                 groupId = groupId,
                 navController = navController,
+                userViewModel = userViewModel,
                 groupViewModel = groupViewModel,
                 expenseViewModel = expenseViewModel,
+                groupUserCrossRefViewModel = groupUserCrossRefViewModel,
+                splitEntryViewModel = splitEntryViewModel,
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme
             )

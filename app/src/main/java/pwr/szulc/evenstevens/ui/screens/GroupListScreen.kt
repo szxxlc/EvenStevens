@@ -14,21 +14,16 @@ import androidx.navigation.NavController
 import pwr.szulc.evenstevens.data.viewmodels.GroupViewModel
 import pwr.szulc.evenstevens.data.viewmodels.GroupUserCrossRefViewModel
 import pwr.szulc.evenstevens.data.viewmodels.UserViewModel
-import pwr.szulc.evenstevens.data.DatabaseProvider.getDatabase
 import pwr.szulc.evenstevens.ui.common.AppTopBar
 
 @Composable
 fun GroupListScreen(
     navController: NavController,
     viewModel: GroupViewModel,
-    userViewModel: UserViewModel,
     groupUserCrossRefViewModel: GroupUserCrossRefViewModel,
     isDarkTheme: Boolean,
     onToggleTheme: () -> Unit
 ) {
-    val context = LocalContext.current
-    val db = getDatabase(context)
-
     val groupList by viewModel.groups.collectAsState(initial = emptyList())
     var expandedGroupId by remember { mutableStateOf<Int?>(null) }
 
@@ -53,11 +48,17 @@ fun GroupListScreen(
                 Text("Brak grup.")
             } else {
                 groupList.forEach { group ->
+                    val usersInGroup by groupUserCrossRefViewModel
+                        .getUsersForGroup(group.id)
+                        .collectAsState(initial = emptyList())
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .clickable { expandedGroupId = if (expandedGroupId == group.id) null else group.id },
+                            .clickable {
+                                expandedGroupId = if (expandedGroupId == group.id) null else group.id
+                            },
                         elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -67,19 +68,10 @@ fun GroupListScreen(
                             )
 
                             if (expandedGroupId == group.id) {
-                                val usersInGroup by groupUserCrossRefViewModel
-                                    .getUsersForGroup(group.id)
-                                    .collectAsState(initial = emptyList())
-                                val allUsers by userViewModel.users.collectAsState(initial = emptyList())
-
-                                val memberNames = usersInGroup.mapNotNull { crossRef ->
-                                    allUsers.find { it.id == crossRef.userId }?.name
-                                }
-
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text("Członkowie grupy:")
-                                memberNames.forEach { name ->
-                                    Text("• $name")
+                                usersInGroup.forEach { user ->
+                                    Text("• ${user.name}")
                                 }
 
                                 Spacer(modifier = Modifier.height(8.dp))

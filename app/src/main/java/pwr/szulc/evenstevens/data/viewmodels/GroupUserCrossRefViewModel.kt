@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import pwr.szulc.evenstevens.data.repositories.GroupUserCrossRefRepository
 import pwr.szulc.evenstevens.data.entities.GroupUserCrossRef
+import pwr.szulc.evenstevens.data.entities.UserEntity
 
 class GroupUserCrossRefViewModel(
     private val repository: GroupUserCrossRefRepository
@@ -24,7 +25,7 @@ class GroupUserCrossRefViewModel(
         }
     }
 
-    fun getUsersForGroup(groupId: Int): Flow<List<GroupUserCrossRef>> {
+    fun getUsersForGroup(groupId: Int): Flow<List<UserEntity>> {
         return repository.getUsersForGroup(groupId)
     }
 

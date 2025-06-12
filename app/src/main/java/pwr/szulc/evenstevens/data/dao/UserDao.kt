@@ -21,4 +21,12 @@ interface UserDao {
 
     @Query("SELECT * FROM `users`")
     fun getAllUsers(): Flow<List<UserEntity>>
+
+    @Query("""
+    SELECT * FROM users WHERE id IN (
+        SELECT userId FROM GroupUserCrossRef  WHERE groupId = :groupId
+    )
+""")
+    fun getUsersForGroup(groupId: Int): Flow<List<UserEntity>>
+
 }
