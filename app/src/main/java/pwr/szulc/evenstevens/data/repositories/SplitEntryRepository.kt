@@ -24,4 +24,7 @@ class SplitEntryRepository(private val splitEntryDao: SplitEntryDao) {
         return splitEntryDao.getSplitEntriesByGroup(groupId)
     }
 
+    suspend fun countEntriesForUserInGroup(userId: Int, groupId: Int): Int =
+        splitEntryDao.countSplitEntriesForUserInGroup(userId, groupId)
+
 }

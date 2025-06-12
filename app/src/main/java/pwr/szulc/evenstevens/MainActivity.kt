@@ -8,6 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import pwr.szulc.evenstevens.data.DatabaseProvider.getDatabase
+import pwr.szulc.evenstevens.data.dao.ExpenseDao
+import pwr.szulc.evenstevens.data.dao.SplitEntryDao
 import pwr.szulc.evenstevens.data.repositories.*
 import pwr.szulc.evenstevens.data.viewmodels.*
 import pwr.szulc.evenstevens.ui.screens.*
@@ -23,13 +25,13 @@ class MainActivity : ComponentActivity() {
         val userRepository = UserRepository(db.userDao())
         val expenseRepository = ExpenseRepository(db.expenseDao(), db.splitEntryDao())
         val splitEntryRepository = SplitEntryRepository(db.splitEntryDao())
-        val groupUserCrossRefRepository = GroupUserCrossRefRepository(db.groupUserCrossRefDao(), db.userDao())
+        val groupUserCrossRefRepository = GroupUserCrossRefRepository(db.groupUserCrossRefDao(), db.userDao(), db.expenseDao(), db.splitEntryDao())
 
         val groupViewModel = GroupViewModel(groupRepository)
         val userViewModel = UserViewModel(userRepository)
         val expenseViewModel = ExpenseViewModel(expenseRepository)
         val splitEntryViewModel = SplitEntryViewModel(splitEntryRepository)
-        val groupUserCrossRefViewModel = GroupUserCrossRefViewModel(groupUserCrossRefRepository)
+        val groupUserCrossRefViewModel = GroupUserCrossRefViewModel(groupUserCrossRefRepository, db.groupUserCrossRefDao())
 
         setContent {
             var isDarkTheme by remember { mutableStateOf(true) }
@@ -79,6 +81,18 @@ fun AppNavHost(
                 groupUserCrossRefViewModel = groupUserCrossRefViewModel,
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme
+            )
+        }
+        composable("edit_group/{groupId}") { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull() ?: return@composable
+            AddGroupScreen(
+                navController = navController,
+                groupViewModel = groupViewModel,
+                userViewModel = userViewModel,
+                groupUserCrossRefViewModel = groupUserCrossRefViewModel,
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme,
+                editingGroupId = groupId
             )
         }
         composable("add_user") {

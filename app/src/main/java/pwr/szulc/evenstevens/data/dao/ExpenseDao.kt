@@ -23,6 +23,9 @@ interface ExpenseDao {
     @Query("SELECT DISTINCT category FROM expenses WHERE groupId = :groupId AND category != ''")
     fun getCategoriesByGroup(groupId: Int): Flow<List<String>>
 
+    @Query("SELECT COUNT(*) FROM expenses WHERE paidByUserId = :userId AND groupId = :groupId")
+    suspend fun countPaidByUserInGroup(userId: Int, groupId: Int): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: ExpenseEntity): Long
 

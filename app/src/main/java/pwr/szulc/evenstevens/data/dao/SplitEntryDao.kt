@@ -3,6 +3,7 @@ package pwr.szulc.evenstevens.data.dao
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import pwr.szulc.evenstevens.data.entities.SplitEntryEntity
+import pwr.szulc.evenstevens.data.entities.ExpenseEntity
 
 @Dao
 interface SplitEntryDao {
@@ -32,5 +33,11 @@ interface SplitEntryDao {
     """)
     fun getSplitEntriesByGroup(groupId: Int): Flow<List<SplitEntryEntity>>
 
+    @Query("""
+    SELECT COUNT(*) FROM split_entries
+    INNER JOIN expenses ON split_entries.expenseId = expenses.id
+    WHERE split_entries.userId = :userId AND expenses.groupId = :groupId
+    """)
+    suspend fun countSplitEntriesForUserInGroup(userId: Int, groupId: Int): Int
 
 }

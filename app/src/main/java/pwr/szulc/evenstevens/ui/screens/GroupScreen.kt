@@ -85,8 +85,7 @@ fun GroupScreen(
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(onClick = {
-                        // tu dodac edytowanie grupy
-                        Toast.makeText(context, "Edycja jeszcze niezaimplementowana", Toast.LENGTH_SHORT).show()
+                        navController.navigate("edit_group/$groupId")
                     }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edytuj")
                         Spacer(Modifier.width(8.dp))
