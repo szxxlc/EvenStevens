@@ -75,6 +75,13 @@ fun AppNavHost(
                 onToggleTheme = onToggleTheme
             )
         }
+        composable("author_info") {
+            AuthorInfoScreen(
+                navController = navController,
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme
+            )
+        }
         composable("group_list") {
             GroupListScreen(
                 navController = navController,
