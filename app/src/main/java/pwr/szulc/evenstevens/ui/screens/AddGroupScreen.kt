@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PersonAdd
@@ -20,6 +22,7 @@ import pwr.szulc.evenstevens.data.viewmodels.GroupUserCrossRefViewModel
 import pwr.szulc.evenstevens.data.viewmodels.GroupViewModel
 import pwr.szulc.evenstevens.data.viewmodels.UserViewModel
 import pwr.szulc.evenstevens.ui.common.AppTopBar
+import androidx.compose.foundation.rememberScrollState
 
 @Composable
 fun AddGroupScreen(
@@ -46,10 +49,11 @@ fun AddGroupScreen(
     val selectedUserIds = remember { mutableStateListOf<Int>() }
     val lockedUserIds = remember { mutableStateListOf<Int>() }
 
-    // Zainicjalizuj dane tylko gdy dostępne są zarówno grupa jak i użytkownicy
+    val scrollState = rememberScrollState()
+
     LaunchedEffect(groupToEdit, users) {
         if (groupToEdit != null && users.isNotEmpty()) {
-            groupName = groupToEdit.name // ustaw domyślną nazwę
+            groupName = groupToEdit.name
             selectedUserIds.clear()
             lockedUserIds.clear()
 
@@ -73,11 +77,14 @@ fun AddGroupScreen(
             )
         }
     ) { padding ->
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp)
+                .verticalScroll(scrollState)
         ) {
             Text(
                 text = if (groupToEdit != null) "Edytuj grupę" else "Dodaj nową grupę",
@@ -104,34 +111,33 @@ fun AddGroupScreen(
                 }
             }
 
-            LazyColumn {
-                items(users) { user ->
-                    val isSelected = user.id in selectedUserIds
-                    val isLocked = user.id in lockedUserIds
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Checkbox(
-                            checked = isSelected,
-                            onCheckedChange = {
-                                if (isLocked && isSelected) {
-                                    Toast.makeText(
-                                        context,
-                                        "Nie można usunąć użytkownika – ma powiązane wydatki w tej grupie",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    if (isSelected) selectedUserIds.remove(user.id)
-                                    else selectedUserIds.add(user.id)
-                                }
-                            },
-                            enabled = !isLocked || isSelected
-                        )
-                        Text(user.name)
-                    }
+            users.forEach { user ->
+                val isSelected = user.id in selectedUserIds
+                val isLocked = user.id in lockedUserIds
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = {
+                            if (isLocked && isSelected) {
+                                Toast.makeText(
+                                    context,
+                                    "Nie można usunąć użytkownika – ma powiązane wydatki w tej grupie",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                if (isSelected) selectedUserIds.remove(user.id)
+                                else selectedUserIds.add(user.id)
+                            }
+                        },
+                        enabled = !isLocked || isSelected
+                    )
+                    Text(user.name)
                 }
             }
 
@@ -185,4 +191,5 @@ fun AddGroupScreen(
             }
         }
     }
+
 }
