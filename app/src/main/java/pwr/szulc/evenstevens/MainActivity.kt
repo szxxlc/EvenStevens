@@ -63,7 +63,18 @@ fun AppNavHost(
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "group_list") {
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            HomeScreen(
+                navController = navController,
+                userViewModel = userViewModel,
+                groupUserCrossRefViewModel = groupUserCrossRefViewModel,
+                expenseViewModel = expenseViewModel,
+                splitEntryViewModel = splitEntryViewModel,
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = onToggleTheme
+            )
+        }
         composable("group_list") {
             GroupListScreen(
                 navController = navController,
@@ -129,7 +140,5 @@ fun AppNavHost(
                 onToggleTheme = onToggleTheme
             )
         }
-
-
     }
 }
