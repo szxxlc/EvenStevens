@@ -31,10 +31,6 @@ class GroupUserCrossRefRepository(
         return dao.getGroupsOfUser(userId)
     }
 
-    suspend fun getUsersForGroupSync(groupId: Int): List<UserEntity> {
-        return dao.getUsersForGroupSync(groupId)
-    }
-
     suspend fun canUserBeRemovedSuspend(userId: Int, groupId: Int): Boolean {
         val paidCount = expenseDao.countPaidByUserInGroup(userId, groupId)
         val splitCount = splitEntryDao.countSplitEntriesForUserInGroup(userId, groupId)

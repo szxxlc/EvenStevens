@@ -7,8 +7,7 @@ import pwr.szulc.evenstevens.data.entities.GroupEntity
 import pwr.szulc.evenstevens.data.entities.GroupUserCrossRef
 
 class GroupRepository(
-    private val groupDao: GroupDao,
-    private val groupUserCrossRefDao: GroupUserCrossRefDao
+    private val groupDao: GroupDao
 ) {
     fun getAllGroups(): Flow<List<GroupEntity>> = groupDao.getAllGroups()
 
@@ -25,16 +24,5 @@ class GroupRepository(
 
     suspend fun delete(group: GroupEntity) = groupDao.delete(group)
 
-    suspend fun addUserToGroup(groupId: Int, userId: Int) {
-        groupUserCrossRefDao.insert(GroupUserCrossRef(groupId = groupId, userId = userId))
-    }
-
-    suspend fun removeUserFromGroup(groupId: Int, userId: Int) {
-        groupUserCrossRefDao.deleteByGroupAndUser(groupId, userId)
-    }
-
-    fun getUsersInGroup(groupId: Int) = groupUserCrossRefDao.getUsersInGroup(groupId)
-
-    fun getGroupsOfUser(userId: Int) = groupUserCrossRefDao.getGroupsOfUser(userId)
 }
 

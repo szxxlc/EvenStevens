@@ -12,7 +12,5 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun delete(user: UserEntity) = userDao.delete(user)
 
-    suspend fun getById(userId: Int): UserEntity? = userDao.getById(userId)
-
     fun getAllUsers(): Flow<List<UserEntity>> = userDao.getAllUsers()
 }

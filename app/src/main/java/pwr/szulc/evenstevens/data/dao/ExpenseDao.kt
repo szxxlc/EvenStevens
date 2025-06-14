@@ -3,7 +3,8 @@ package pwr.szulc.evenstevens.data.dao
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import pwr.szulc.evenstevens.data.entities.ExpenseEntity
-import pwr.szulc.evenstevens.data.entities.SplitEntryEntity
+import kotlinx.coroutines.flow.distinctUntilChanged
+
 
 @Dao
 interface ExpenseDao {
@@ -11,8 +12,11 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses")
     fun getAllExpenses(): Flow<List<ExpenseEntity>>
 
+    fun getExpensesByGroup(groupId: Int): Flow<List<ExpenseEntity>> =
+        getRawExpensesByGroup(groupId).distinctUntilChanged()
+
     @Query("SELECT * FROM expenses WHERE groupId = :groupId")
-    fun getExpensesByGroup(groupId: Int): Flow<List<ExpenseEntity>>
+    fun getRawExpensesByGroup(groupId: Int): Flow<List<ExpenseEntity>>
 
     @Query("SELECT SUM(amount) FROM expenses WHERE paidByUserId = :userId")
     fun getTotalAmountPaidByUser(userId: Int): Flow<Double?>

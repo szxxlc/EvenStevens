@@ -31,10 +31,6 @@ class GroupUserCrossRefViewModel(
         return repository.getUsersForGroup(groupId)
     }
 
-    fun getGroupsForUser(userId: Int): Flow<List<GroupUserCrossRef>> {
-        return repository.getGroupsForUser(userId)
-    }
-
     suspend fun getUsersForGroupSync(groupId: Int): List<UserEntity> {
         return dao.getUsersForGroupSync(groupId)
     }

@@ -38,5 +38,4 @@ class ExpenseRepository(
 
     suspend fun deleteExpense(expense: ExpenseEntity) = expenseDao.deleteExpense(expense)
 
-    suspend fun deleteAll() = expenseDao.deleteAll()
 }
