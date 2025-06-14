@@ -172,34 +172,49 @@ fun AddExpenseScreen(
                         checked = selectedUsers[user.id] == true,
                         onCheckedChange = { checked ->
                             selectedUsers[user.id] = checked
+
+                            val selectedCount = selectedUsers.count { it.value } +
+                                    if (selectedUser != null && selectedUsers[availableUsers.find { it.name == selectedUser }?.id] != true) 1 else 0
+
+                            if (selectedCount <= 1) {
+                                splitEqually = true
+                                customSplit = false
+                            }
                         }
                     )
+
                     Text(user.name)
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Jak podzielić koszt:")
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = splitEqually,
-                    onCheckedChange = {
-                        splitEqually = it
-                        if (it) customSplit = false
-                    }
-                )
-                Text("Po równo")
+            val numberOfSelected = selectedUsers.count { it.value } +
+                    if (selectedUser != null && selectedUsers[availableUsers.find { it.name == selectedUser }?.id] != true) 1 else 0
+
+            if (numberOfSelected > 1) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Jak podzielić koszt:")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = splitEqually,
+                        onCheckedChange = {
+                            splitEqually = it
+                            if (it) customSplit = false
+                        }
+                    )
+                    Text("Po równo")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = customSplit,
+                        onCheckedChange = {
+                            customSplit = it
+                            if (it) splitEqually = false
+                        }
+                    )
+                    Text("Niestandardowo")
+                }
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = customSplit,
-                    onCheckedChange = {
-                        customSplit = it
-                        if (it) splitEqually = false
-                    }
-                )
-                Text("Niestandardowo")
-            }
+
 
             if (customSplit) {
                 Spacer(modifier = Modifier.height(12.dp))
