@@ -68,7 +68,7 @@ fun AuthorInfoScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "O projekcie",
+                text = "O autorze",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
