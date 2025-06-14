@@ -33,42 +33,35 @@ fun GroupScreen(
     val context = LocalContext.current
 
     val group by groupViewModel.getGroupById(groupId).collectAsState(initial = null)
-    val rawExpenses by expenseViewModel.getExpensesByGroup(groupId).collectAsState(initial = emptyList())
-    var cachedExpenses by remember { mutableStateOf<List<ExpenseEntity>>(emptyList()) }
-
-    LaunchedEffect(rawExpenses) {
-        if (rawExpenses.isNotEmpty()) {
-            cachedExpenses = rawExpenses
-        }
-    }
-
+    val expenses by expenseViewModel.getExpensesByGroup(groupId).collectAsState(initial = emptyList())
     val scrollState = rememberScrollState()
-
     val groupUsers by groupUserCrossRefViewModel.getUsersForGroup(groupId).collectAsState(initial = emptyList())
     val splitEntries by splitEntryViewModel.getSplitEntriesByGroup(groupId).collectAsState(initial = emptyList())
     val allUsers by userViewModel.users.collectAsState(initial = emptyList())
 
     val expandedUsers = remember { mutableStateMapOf<Int, Boolean>() }
 
-    val balances = remember(splitEntries, cachedExpenses) {
-        val result = mutableMapOf<Int, Double>()
+    val balances by remember(splitEntries, expenses, groupId) {
+        derivedStateOf {
+            if (expenses.isEmpty() || splitEntries.isEmpty()) return@derivedStateOf emptyMap()
 
-        cachedExpenses.filter { it.groupId == groupId }.forEach { expense ->
-            val paid = expense.amount
-            val paidBy = expense.paidByUserId
-            if (paidBy != null) {
+            val result = mutableMapOf<Int, Double>()
+
+            expenses.filter { it.groupId == groupId }.forEach { expense ->
+                val paid = expense.amount
+                val paidBy = expense.paidByUserId
                 result[paidBy] = (result[paidBy] ?: 0.0) + paid
             }
-        }
 
-        splitEntries.filter { entry ->
-            val expense = cachedExpenses.find { it.id == entry.expenseId }
-            expense?.groupId == groupId
-        }.forEach { entry ->
-            result[entry.userId] = (result[entry.userId] ?: 0.0) - entry.amount
-        }
+            splitEntries.filter { entry ->
+                val expense = expenses.find { it.id == entry.expenseId }
+                expense?.groupId == groupId
+            }.forEach { entry ->
+                result[entry.userId] = (result[entry.userId] ?: 0.0) - entry.amount
+            }
 
-        result
+            result
+        }
     }
 
     Scaffold(
@@ -173,10 +166,10 @@ fun GroupScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Text("Wydatki:", style = MaterialTheme.typography.titleMedium)
 
-                if (cachedExpenses.isEmpty()) {
+                if (expenses.isEmpty()) {
                     Text("Brak wydatków w tej grupie.")
                 } else {
-                    cachedExpenses.forEach { expense ->
+                    expenses.forEach { expense ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
