@@ -83,7 +83,7 @@ fun AddGroupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp)
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
                 .verticalScroll(scrollState)
         ) {
             Text(

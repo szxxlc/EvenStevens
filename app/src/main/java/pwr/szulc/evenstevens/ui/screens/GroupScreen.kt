@@ -3,6 +3,8 @@ package pwr.szulc.evenstevens.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -39,6 +41,8 @@ fun GroupScreen(
             cachedExpenses = rawExpenses
         }
     }
+
+    val scrollState = rememberScrollState()
 
     val groupUsers by groupUserCrossRefViewModel.getUsersForGroup(groupId).collectAsState(initial = emptyList())
     val splitEntries by splitEntryViewModel.getSplitEntriesByGroup(groupId).collectAsState(initial = emptyList())
@@ -86,7 +90,8 @@ fun GroupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp)
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
+                .verticalScroll(scrollState),
         ) {
             group?.let {
                 Text("Grupa: ${it.name}", style = MaterialTheme.typography.headlineMedium)

@@ -1,6 +1,8 @@
 package pwr.szulc.evenstevens.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Info
@@ -32,6 +34,8 @@ fun HomeScreen(
     var totalPaid by remember { mutableStateOf<Double?>(null) }
     var totalOwed by remember { mutableStateOf<Double?>(null) }
     var totalBalance by remember { mutableStateOf<Double?>(null) }
+
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(selectedUserId) {
         if (selectedUserId != null) {
@@ -74,7 +78,8 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp),
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
@@ -113,13 +118,6 @@ fun HomeScreen(
             if (selectedUser != null) {
                 Text("Witaj, $selectedUser!", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
-
-//                when {
-//                    totalBalance == null -> Text("Trwa obliczanie salda...")
-//                    totalBalance!! > 0 -> Text("Inni są Ci winni %.2f zł".format(totalBalance), color = MaterialTheme.colorScheme.primary)
-//                    totalBalance!! < 0 -> Text("Jesteś winien/winna innym %.2f zł".format(-totalBalance!!), color = MaterialTheme.colorScheme.error)
-//                    else -> Text("Jesteś rozliczony/a ze wszystkimi.", color = MaterialTheme.colorScheme.onBackground)
-//                }
 
                 Text("Inni są Ci winni %.2f zł".format(totalPaid), color = MaterialTheme.colorScheme.primary)
                 Text("Jesteś winien/winna innym %.2f zł".format(totalOwed), color = MaterialTheme.colorScheme.error)

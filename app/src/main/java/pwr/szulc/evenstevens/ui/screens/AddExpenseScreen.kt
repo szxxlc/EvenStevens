@@ -69,7 +69,7 @@ fun AddExpenseScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp)
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
@@ -89,7 +89,7 @@ fun AddExpenseScreen(
             OutlinedTextField(
                 value = expenseAmount,
                 onValueChange = { expenseAmount = it },
-                label = { Text("Kwota") },
+                label = { Text("Kwota [zł]") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )

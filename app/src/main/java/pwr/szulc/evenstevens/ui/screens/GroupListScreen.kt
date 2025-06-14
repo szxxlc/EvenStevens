@@ -2,6 +2,8 @@ package pwr.szulc.evenstevens.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.*
@@ -27,6 +29,8 @@ fun GroupListScreen(
     val groupList by viewModel.groups.collectAsState(initial = emptyList())
     var expandedGroupId by remember { mutableStateOf<Int?>(null) }
 
+    val scrollState = rememberScrollState()
+
     Scaffold(
         topBar = {
             AppTopBar(
@@ -39,7 +43,8 @@ fun GroupListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
+                .verticalScroll(scrollState),
         ) {
             Text("Grupy użytkownika", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(12.dp))

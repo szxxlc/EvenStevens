@@ -2,6 +2,8 @@ package pwr.szulc.evenstevens.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -31,6 +33,8 @@ fun AddUserScreen(
     val context = LocalContext.current
     var userName by remember { mutableStateOf("") }
 
+    val scrollState = rememberScrollState()
+
     Scaffold(
         topBar = {
             AppTopBar(
@@ -43,7 +47,8 @@ fun AddUserScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
