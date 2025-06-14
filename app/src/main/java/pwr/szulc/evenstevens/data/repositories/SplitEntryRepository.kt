@@ -27,4 +27,8 @@ class SplitEntryRepository(private val splitEntryDao: SplitEntryDao) {
     suspend fun countEntriesForUserInGroup(userId: Int, groupId: Int): Int =
         splitEntryDao.countSplitEntriesForUserInGroup(userId, groupId)
 
+    fun getTotalAmountOwedByUser(userId: Int): Flow<Double?> {
+        return splitEntryDao.getTotalAmountOwedByUser(userId)
+    }
+
 }

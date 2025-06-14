@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import pwr.szulc.evenstevens.data.viewmodels.*
 import pwr.szulc.evenstevens.ui.common.AppTopBar
@@ -28,23 +29,22 @@ fun HomeScreen(
     var selectedUser by remember { mutableStateOf<String?>(null) }
     val selectedUserId = users.find { it.name == selectedUser }?.id
 
+    var totalPaid by remember { mutableStateOf<Double?>(null) }
+    var totalOwed by remember { mutableStateOf<Double?>(null) }
     var totalBalance by remember { mutableStateOf<Double?>(null) }
 
     LaunchedEffect(selectedUserId) {
         if (selectedUserId != null) {
-            val groups = groupUserCrossRefViewModel.getGroupsForUser(selectedUserId).first()
-            var balance = 0.0
-            for (group in groups) {
-                val expenses = expenseViewModel.getExpensesByGroup(group.groupId).first()
-                val splits = splitEntryViewModel.getSplitEntriesByGroup(group.groupId).first()
-
-                val paid = expenses.filter { it.paidByUserId == selectedUserId }.sumOf { it.amount }
-                val owed = splits.filter { it.userId == selectedUserId }.sumOf { it.amount }
-                balance += paid - owed
+            expenseViewModel.getTotalPaidByUser(selectedUserId).collectLatest { paidValue ->
+                splitEntryViewModel.getTotalOwedByUser(selectedUserId).collectLatest { owedValue ->
+                    totalPaid = paidValue ?: 0.0
+                    totalOwed = owedValue ?: 0.0
+                    totalBalance = totalPaid!! - totalOwed!!
+                }
             }
-            totalBalance = balance
         }
     }
+
 
     Scaffold(
         topBar = {
@@ -114,12 +114,17 @@ fun HomeScreen(
                 Text("Witaj, $selectedUser!", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                when {
-                    totalBalance == null -> Text("Trwa obliczanie salda...")
-                    totalBalance!! > 0 -> Text("Inni są Ci winni %.2f zł".format(totalBalance), color = MaterialTheme.colorScheme.primary)
-                    totalBalance!! < 0 -> Text("Jesteś winien/winna innym %.2f zł".format(-totalBalance!!), color = MaterialTheme.colorScheme.error)
-                    else -> Text("Jesteś rozliczony/a ze wszystkimi.", color = MaterialTheme.colorScheme.onBackground)
-                }
+//                when {
+//                    totalBalance == null -> Text("Trwa obliczanie salda...")
+//                    totalBalance!! > 0 -> Text("Inni są Ci winni %.2f zł".format(totalBalance), color = MaterialTheme.colorScheme.primary)
+//                    totalBalance!! < 0 -> Text("Jesteś winien/winna innym %.2f zł".format(-totalBalance!!), color = MaterialTheme.colorScheme.error)
+//                    else -> Text("Jesteś rozliczony/a ze wszystkimi.", color = MaterialTheme.colorScheme.onBackground)
+//                }
+
+                Text("Inni są Ci winni %.2f zł".format(totalPaid), color = MaterialTheme.colorScheme.primary)
+                Text("Jesteś winien/winna innym %.2f zł".format(totalOwed), color = MaterialTheme.colorScheme.error)
+                Text("Twoj balans to %.2f zł".format(totalBalance), color = MaterialTheme.colorScheme.onBackground)
+
             }
         }
     }

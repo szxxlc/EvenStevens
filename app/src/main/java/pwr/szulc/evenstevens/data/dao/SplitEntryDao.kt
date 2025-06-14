@@ -23,6 +23,10 @@ interface SplitEntryDao {
     @Query("SELECT * FROM split_entries WHERE id = :splitEntryId")
     suspend fun getById(splitEntryId: Int): SplitEntryEntity?
 
+    @Query("SELECT SUM(amount) FROM split_entries WHERE userId = :userId")
+    fun getTotalAmountOwedByUser(userId: Int): Flow<Double?>
+
+
     @Query("SELECT * FROM split_entries")
     fun getAllSplitEntries(): Flow<List<SplitEntryEntity>>
 

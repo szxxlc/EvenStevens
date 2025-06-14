@@ -4,10 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import pwr.szulc.evenstevens.data.dao.SplitEntryDao
 import pwr.szulc.evenstevens.data.repositories.SplitEntryRepository
 import pwr.szulc.evenstevens.data.entities.SplitEntryEntity
 
-class SplitEntryViewModel(private val repository: SplitEntryRepository) : ViewModel() {
+class SplitEntryViewModel(
+    private val repository: SplitEntryRepository
+) : ViewModel() {
 
     val allSplitEntries = repository.getAllSplitEntries()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -33,5 +36,11 @@ class SplitEntryViewModel(private val repository: SplitEntryRepository) : ViewMo
     fun getSplitEntriesByGroup(groupId: Int): Flow<List<SplitEntryEntity>> {
         return repository.getSplitEntriesByGroup(groupId)
     }
+
+    fun getTotalOwedByUser(userId: Int): StateFlow<Double?> {
+        return repository.getTotalAmountOwedByUser(userId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    }
+
 
 }
