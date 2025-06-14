@@ -31,17 +31,25 @@ fun GroupScreen(
     val context = LocalContext.current
 
     val group by groupViewModel.getGroupById(groupId).collectAsState(initial = null)
-    val expenses by expenseViewModel.getExpensesByGroup(groupId).collectAsState(initial = emptyList())
+    val rawExpenses by expenseViewModel.getExpensesByGroup(groupId).collectAsState(initial = emptyList())
+    var cachedExpenses by remember { mutableStateOf<List<ExpenseEntity>>(emptyList()) }
+
+    LaunchedEffect(rawExpenses) {
+        if (rawExpenses.isNotEmpty()) {
+            cachedExpenses = rawExpenses
+        }
+    }
+
     val groupUsers by groupUserCrossRefViewModel.getUsersForGroup(groupId).collectAsState(initial = emptyList())
     val splitEntries by splitEntryViewModel.getSplitEntriesByGroup(groupId).collectAsState(initial = emptyList())
     val allUsers by userViewModel.users.collectAsState(initial = emptyList())
 
     val expandedUsers = remember { mutableStateMapOf<Int, Boolean>() }
 
-    val balances = remember(splitEntries, expenses) {
+    val balances = remember(splitEntries, cachedExpenses) {
         val result = mutableMapOf<Int, Double>()
 
-        expenses.filter { it.groupId == groupId }.forEach { expense ->
+        cachedExpenses.filter { it.groupId == groupId }.forEach { expense ->
             val paid = expense.amount
             val paidBy = expense.paidByUserId
             if (paidBy != null) {
@@ -50,11 +58,12 @@ fun GroupScreen(
         }
 
         splitEntries.filter { entry ->
-            val expense = expenses.find { it.id == entry.expenseId }
+            val expense = cachedExpenses.find { it.id == entry.expenseId }
             expense?.groupId == groupId
         }.forEach { entry ->
             result[entry.userId] = (result[entry.userId] ?: 0.0) - entry.amount
         }
+
         result
     }
 
@@ -112,12 +121,11 @@ fun GroupScreen(
                 groupUsers.forEach { user ->
                     val balance = balances[user.id] ?: 0.0
                     val expanded = expandedUsers[user.id] ?: false
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            expandedUsers[user.id] = !expanded
-                        }
-                        .padding(vertical = 4.dp)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expandedUsers[user.id] = !expanded }
+                            .padding(vertical = 4.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -158,12 +166,12 @@ fun GroupScreen(
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-
                 Text("Wydatki:", style = MaterialTheme.typography.titleMedium)
-                if (expenses.isEmpty()) {
+
+                if (cachedExpenses.isEmpty()) {
                     Text("Brak wydatków w tej grupie.")
                 } else {
-                    expenses.forEach { expense ->
+                    cachedExpenses.forEach { expense ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -173,7 +181,6 @@ fun GroupScreen(
                         ) {
                             Column {
                                 Text("${expense.name} – %.2f zł".format(expense.amount))
-
 
                                 val payerName = allUsers.find { it.id == expense.paidByUserId }?.name ?: "Nieznany"
                                 val categoryLabel = if (expense.category.isNullOrBlank()) "inne" else expense.category
@@ -189,7 +196,6 @@ fun GroupScreen(
                             }) {
                                 Icon(Icons.Filled.Delete, contentDescription = "Usuń wydatek")
                             }
-
                         }
                     }
                 }
