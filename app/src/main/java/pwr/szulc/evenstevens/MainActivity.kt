@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
 
         val db = getDatabase(applicationContext)
 
-        val groupRepository = GroupRepository(db.groupDao(), db.groupUserCrossRefDao())
+        val groupRepository = GroupRepository(db.groupDao())
         val userRepository = UserRepository(db.userDao())
         val expenseRepository = ExpenseRepository(db.expenseDao(), db.splitEntryDao())
         val splitEntryRepository = SplitEntryRepository(db.splitEntryDao())

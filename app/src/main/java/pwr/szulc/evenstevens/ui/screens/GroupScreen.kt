@@ -17,6 +17,9 @@ import androidx.navigation.NavController
 import pwr.szulc.evenstevens.data.entities.ExpenseEntity
 import pwr.szulc.evenstevens.data.viewmodels.*
 import pwr.szulc.evenstevens.ui.common.AppTopBar
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import pwr.szulc.evenstevens.data.entities.UserEntity
 
 @Composable
 fun GroupScreen(
@@ -34,7 +37,6 @@ fun GroupScreen(
 
     val group by groupViewModel.getGroupById(groupId).collectAsState(initial = null)
     val expenses by expenseViewModel.getExpensesByGroup(groupId).collectAsState(initial = emptyList())
-    val scrollState = rememberScrollState()
     val groupUsers by groupUserCrossRefViewModel.getUsersForGroup(groupId).collectAsState(initial = emptyList())
     val splitEntries by splitEntryViewModel.getSplitEntriesByGroup(groupId).collectAsState(initial = emptyList())
     val allUsers by userViewModel.users.collectAsState(initial = emptyList())
@@ -83,8 +85,7 @@ fun GroupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp)
-                .verticalScroll(scrollState),
+                .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 48.dp),
         ) {
             group?.let {
                 Text("Grupa: ${it.name}", style = MaterialTheme.typography.headlineMedium)
@@ -169,37 +170,55 @@ fun GroupScreen(
                 if (expenses.isEmpty()) {
                     Text("Brak wydatków w tej grupie.")
                 } else {
-                    expenses.forEach { expense ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                        ) {
-                            Column {
-                                Text("${expense.name} – %.2f zł".format(expense.amount))
-
-                                val payerName = allUsers.find { it.id == expense.paidByUserId }?.name ?: "Nieznany"
-                                val categoryLabel = if (expense.category.isNullOrBlank()) "inne" else expense.category
-                                Text(
-                                    "Kategoria: ${categoryLabel}, zapłacił/a: $payerName",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            IconButton(onClick = {
-                                expenseViewModel.deleteExpense(expense)
-                                Toast.makeText(context, "Usunięto wydatek", Toast.LENGTH_SHORT).show()
-                            }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Usuń wydatek")
-                            }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 4.dp),
+                    ) {
+                        items(expenses, key = { it.id }) { expense ->
+                            ExpenseRow(
+                                expense = expense,
+                                allUsers = allUsers,
+                                onDelete = {
+                                    expenseViewModel.deleteExpense(expense)
+                                    Toast.makeText(context, "Usunięto wydatek", Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         }
                     }
                 }
             } ?: run {
                 Text("Nie znaleziono grupy.")
             }
+        }
+    }
+}
+
+@Composable
+fun ExpenseRow(
+    expense: ExpenseEntity,
+    allUsers: List<UserEntity>,
+    onDelete: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Column {
+            Text("${expense.name} – %.2f zł".format(expense.amount))
+
+            val payerName = allUsers.find { it.id == expense.paidByUserId }?.name ?: "Nieznany"
+            val categoryLabel = if (expense.category.isNullOrBlank()) "inne" else expense.category
+            Text(
+                "Kategoria: ${categoryLabel}, zapłacił/a: $payerName",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        IconButton(onClick = onDelete) {
+            Icon(Icons.Filled.Delete, contentDescription = "Usuń wydatek")
         }
     }
 }

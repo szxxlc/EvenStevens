@@ -29,4 +29,9 @@ class ExpenseViewModel(
     fun deleteExpense(expense: ExpenseEntity) {
         viewModelScope.launch { repository.deleteExpense(expense) }
     }
+
+    fun getTotalPaidByUser(userId: Int): StateFlow<Double?> {
+        return repository.getTotalAmountPaidByUser(userId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    }
 }
