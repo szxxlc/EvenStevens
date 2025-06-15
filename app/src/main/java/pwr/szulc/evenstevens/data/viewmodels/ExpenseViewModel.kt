@@ -14,6 +14,7 @@ class ExpenseViewModel(
 
     fun getExpensesByGroup(groupId: Int): StateFlow<List<ExpenseEntity>> {
         return repository.getExpensesByGroup(groupId)
+            .distinctUntilChanged()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     }
 
